@@ -13,6 +13,7 @@ import type { ReactNode } from "react";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import WorkOSProvider from "@/integrations/workos/provider";
+import appCss from "../global.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -32,6 +33,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 			{
 				title: "Axis CMS",
+			},
+		],
+		links: [
+			{
+				rel: "stylesheet",
+				href: appCss,
 			},
 		],
 	}),
