@@ -1,13 +1,26 @@
 /// <reference types="vite/client" />
-import type { ReactNode } from "react";
+
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import type { QueryClient } from "@tanstack/react-query";
 import {
-	Outlet,
-	createRootRoute,
+	createRootRouteWithContext,
 	HeadContent,
 	Scripts,
 } from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import type { ReactNode } from "react";
+import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
+import type { TRPCRouter } from "@/integrations/trpc/router";
+import WorkOSProvider from "@/integrations/workos/provider";
 
-export const Route = createRootRoute({
+interface MyRouterContext {
+	queryClient: QueryClient;
+
+	trpc: TRPCOptionsProxy<TRPCRouter>;
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: () => ({
 		meta: [
 			{
@@ -22,16 +35,8 @@ export const Route = createRootRoute({
 			},
 		],
 	}),
-	component: RootComponent,
+	shellComponent: RootDocument,
 });
-
-function RootComponent() {
-	return (
-		<RootDocument>
-			<Outlet />
-		</RootDocument>
-	);
-}
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 	return (
@@ -40,7 +45,21 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 				<HeadContent />
 			</head>
 			<body>
-				{children}
+				<WorkOSProvider>
+					{children}
+					<TanStackDevtools
+						config={{
+							position: "bottom-right",
+						}}
+						plugins={[
+							{
+								name: "Tanstack Router",
+								render: <TanStackRouterDevtoolsPanel />,
+							},
+							TanStackQueryDevtools,
+						]}
+					/>
+				</WorkOSProvider>
 				<Scripts />
 			</body>
 		</html>

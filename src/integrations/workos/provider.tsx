@@ -1,0 +1,25 @@
+import { useNavigate } from "@tanstack/react-router";
+import { AuthKitProvider } from "@workos-inc/authkit-react";
+import { env } from "@/env";
+
+export default function WorkOSProvider({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	const navigate = useNavigate();
+
+	return (
+		<AuthKitProvider
+			clientId={env.VITE_WORKOS_CLIENT_ID}
+			apiHostname={env.VITE_WORKOS_API_HOSTNAME}
+			onRedirectCallback={({ state }) => {
+				if (state?.returnTo) {
+					navigate(state.returnTo);
+				}
+			}}
+		>
+			{children}
+		</AuthKitProvider>
+	);
+}
