@@ -1,5 +1,4 @@
 import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
 
 export const env = createEnv({
 	/**
@@ -8,10 +7,7 @@ export const env = createEnv({
 	 */
 	clientPrefix: "VITE_",
 
-	client: {
-		VITE_WORKOS_API_HOSTNAME: z.string().min(1),
-		VITE_WORKOS_CLIENT_ID: z.string().min(1),
-	},
+	client: {},
 
 	/**
 	 * What object holds the environment variables at runtime. This is usually

@@ -10,9 +10,11 @@ export default defineConfig({
 	},
 	plugins: [
 		devtools(),
+
 		tsConfigPaths({
 			projects: ["./tsconfig.json"],
 		}),
+
 		tanstackStart(),
 		viteReact(),
 	],

@@ -5,20 +5,25 @@ import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
+	Outlet,
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import type { AuthResult } from "@workos/authkit-tanstack-react-start";
+import {
+	AuthKitProvider,
+	getAuthAction,
+} from "@workos/authkit-tanstack-react-start/client";
 import type { ReactNode } from "react";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
 import type { TRPCRouter } from "@/integrations/trpc/router";
-import WorkOSProvider from "@/integrations/workos/provider";
 import appCss from "../global.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
-
 	trpc: TRPCOptionsProxy<TRPCRouter>;
+	auth: () => AuthResult;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -42,8 +47,27 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 		],
 	}),
-	shellComponent: RootDocument,
+	loader: async () => {
+		const auth = await getAuthAction();
+
+		return {
+			auth,
+		};
+	},
+	component: RootComponent,
 });
+
+function RootComponent() {
+	const { auth } = Route.useLoaderData();
+
+	return (
+		<RootDocument>
+			<AuthKitProvider initialAuth={auth}>
+				<Outlet />
+			</AuthKitProvider>
+		</RootDocument>
+	);
+}
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 	return (
@@ -52,21 +76,19 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 				<HeadContent />
 			</head>
 			<body>
-				<WorkOSProvider>
-					{children}
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
-				</WorkOSProvider>
+				{children}
+				<TanStackDevtools
+					config={{
+						position: "bottom-right",
+					}}
+					plugins={[
+						{
+							name: "Tanstack Router",
+							render: <TanStackRouterDevtoolsPanel />,
+						},
+						TanStackQueryDevtools,
+					]}
+				/>
 				<Scripts />
 			</body>
 		</html>
