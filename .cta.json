@@ -1,0 +1,23 @@
+{
+  "projectName": "axis-cms",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "addOnOptions": {},
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "tanstack-query",
+    "start",
+    "tRPC",
+    "t3env",
+    "form",
+    "compiler",
+    "workos",
+    "convex",
+    "table"
+  ]
+}
