@@ -3,10 +3,10 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		WORKOS_CLIENT_ID: z.string().optional(),
-		WORKOS_API_KEY: z.string().optional(),
-		WORKOS_REDIRECT_URI: z.url().optional(),
-		WORKOS_COOKIE_PASSWORD: z.string().optional(),
+		WORKOS_CLIENT_ID: z.string(),
+		WORKOS_API_KEY: z.string(),
+		WORKOS_REDIRECT_URI: z.url(),
+		WORKOS_COOKIE_PASSWORD: z.string(),
 	},
 
 	/**
@@ -16,14 +16,22 @@ export const env = createEnv({
 	clientPrefix: "VITE_",
 
 	client: {
-		VITE_CONVEX_URL: z.string(),
+		VITE_CONVEX_URL: z.url(),
+		VITE_WORKOS_DEFAULT_ORG_ID: z.string(),
 	},
 
 	/**
 	 * What object holds the environment variables at runtime. This is usually
 	 * `process.env` or `import.meta.env`.
 	 */
-	runtimeEnv: import.meta.env,
+	runtimeEnvStrict: {
+		WORKOS_CLIENT_ID: process.env.WORKOS_CLIENT_ID,
+		WORKOS_API_KEY: process.env.WORKOS_API_KEY,
+		WORKOS_REDIRECT_URI: process.env.WORKOS_REDIRECT_URI,
+		WORKOS_COOKIE_PASSWORD: process.env.WORKOS_COOKIE_PASSWORD,
+		VITE_WORKOS_DEFAULT_ORG_ID: import.meta.env.VITE_WORKOS_DEFAULT_ORG_ID,
+		VITE_CONVEX_URL: import.meta.env.VITE_CONVEX_URL,
+	},
 
 	/**
 	 * By default, this library will feed the environment variables directly to

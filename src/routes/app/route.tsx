@@ -1,11 +1,14 @@
 import {
 	createFileRoute,
 	Link,
-	Navigate,
 	Outlet,
+	useNavigate,
 } from "@tanstack/react-router";
 import { getSignInUrl } from "@workos/authkit-tanstack-react-start";
 import { useConvexAuth } from "convex/react";
+import { OrganizationSwitcher } from "@/components/organization-switcher";
+import { Spinner } from "@/components/ui/spinner";
+import { env } from "@/env";
 
 export const Route = createFileRoute("/app")({
 	ssr: false,
@@ -13,6 +16,7 @@ export const Route = createFileRoute("/app")({
 		const url = await getSignInUrl({
 			data: {
 				returnPathname: location.pathname,
+				organizationId: env.VITE_WORKOS_DEFAULT_ORG_ID,
 			},
 		});
 
@@ -23,14 +27,18 @@ export const Route = createFileRoute("/app")({
 
 function RouteComponent() {
 	const { url } = Route.useLoaderData();
+	const navigate = useNavigate();
 	const { isLoading, isAuthenticated } = useConvexAuth();
 
 	if (isLoading) {
-		return <div>Loading page</div>;
+		return <Spinner className="size-9" />;
 	}
 
 	if (!isAuthenticated) {
-		return <Navigate to="/app" href={url} />;
+		return navigate({
+			href: url,
+			reloadDocument: true,
+		});
 	}
 
 	return (
@@ -52,6 +60,7 @@ function RouteComponent() {
 						</li>
 					</ul>
 				</nav>
+				<OrganizationSwitcher />
 			</header>
 			<Outlet />
 		</div>

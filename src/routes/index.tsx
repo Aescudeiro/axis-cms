@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getSignInUrl } from "@workos/authkit-tanstack-react-start";
 import { Authenticated, Unauthenticated } from "convex/react";
+import { env } from "@/env";
 
 export const Route = createFileRoute("/")({
 	loader: async () => {
 		const url = await getSignInUrl({
 			data: {
 				returnPathname: "/app",
+				organizationId: env.VITE_WORKOS_DEFAULT_ORG_ID,
 			},
 		});
 
