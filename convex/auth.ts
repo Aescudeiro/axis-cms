@@ -1,7 +1,7 @@
 import { AuthKit, type AuthFunctions } from "@convex-dev/workos-authkit";
 import { components, internal } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
-import { internalAction, query } from "./_generated/server";
+import { action, internalAction, query } from "./_generated/server";
 import { v } from "convex/values";
 
 const authFunctions: AuthFunctions = internal.auth;
@@ -312,5 +312,59 @@ export const getOrganizationByWorkosId = query({
 			.query("organizations")
 			.withIndex("workosId", (q) => q.eq("workosId", args.workosId))
 			.unique();
+	},
+});
+
+export const createOrganization = action({
+	args: {
+		name: v.string(),
+	},
+	handler: async (ctx, args): Promise<{ id: string; name: string }> => {
+		const authUser = await authKit.getAuthUser(ctx);
+
+		if (!authUser) {
+			throw new Error("Unauthorized");
+		}
+
+		const org = await authKit.workos.organizations.createOrganization({
+			name: args.name,
+		});
+
+		await authKit.workos.userManagement.createOrganizationMembership({
+			userId: authUser.id,
+			organizationId: org.id,
+			roleSlug: "admin",
+		});
+
+		return { id: org.id, name: org.name };
+	},
+});
+
+export const leaveOrganization = action({
+	args: {
+		organizationId: v.string(),
+	},
+	handler: async (ctx, args): Promise<void> => {
+		const authUser = await authKit.getAuthUser(ctx);
+
+		if (!authUser) {
+			throw new Error("Unauthorized");
+		}
+
+		const memberships =
+			await authKit.workos.userManagement.listOrganizationMemberships({
+				userId: authUser.id,
+				organizationId: args.organizationId,
+			});
+
+		const membership = memberships.data[0];
+
+		if (!membership) {
+			throw new Error("Membership not found");
+		}
+
+		await authKit.workos.userManagement.deleteOrganizationMembership(
+			membership.id,
+		);
 	},
 });
