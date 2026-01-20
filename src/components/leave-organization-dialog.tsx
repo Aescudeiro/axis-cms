@@ -4,7 +4,7 @@ import { useAuth } from "@workos/authkit-tanstack-react-start/client";
 import { api } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
 import { useAction } from "convex/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -32,16 +32,26 @@ export function LeaveOrganizationDialog({
 	const leaveOrganization = useAction(api.auth.leaveOrganization);
 	const [isLeaving, setIsLeaving] = useState(false);
 
+	const [cachedOrganization, setCachedOrganization] =
+		useState<Doc<"organizations"> | null>(null);
+
+	useEffect(() => {
+		if (organization) {
+			setCachedOrganization(organization);
+		}
+	}, [organization]);
+
+	const displayOrganization = organization ?? cachedOrganization;
+
 	const handleLeave = async () => {
-		if (!organization) return;
+		if (!displayOrganization) return;
 
 		setIsLeaving(true);
 
 		try {
-			await leaveOrganization({ organizationId: organization.workosId });
+			await leaveOrganization({ organizationId: displayOrganization.workosId });
 
-			// If we're leaving the active organization, switch to another one
-			if (organization.workosId === organizationId) {
+			if (displayOrganization.workosId === organizationId) {
 				await switchToOrganization("");
 			}
 
@@ -61,7 +71,7 @@ export function LeaveOrganizationDialog({
 					<DialogDescription>
 						Are you sure you want to leave{" "}
 						<span className="font-medium text-foreground">
-							{organization?.name}
+							{displayOrganization?.name}
 						</span>
 						? You will lose access to all resources in this organization.
 					</DialogDescription>

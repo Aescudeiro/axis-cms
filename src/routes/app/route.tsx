@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { getSignInUrl } from "@workos/authkit-tanstack-react-start";
 import { useConvexAuth } from "convex/react";
+import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { OrganizationProvider } from "@/components/organization-provider";
 import {
@@ -41,11 +42,25 @@ export const Route = createFileRoute("/app")({
 	component: RouteComponent,
 });
 
+const SIDEBAR_STORAGE_KEY = "sidebar_state";
+
 function RouteComponent() {
 	const { url } = Route.useLoaderData();
 	const navigate = useNavigate();
 	const { isLoading, isAuthenticated } = useConvexAuth();
 	const matches = useMatches();
+	const [sidebarOpen, setSidebarOpen] = useState(() => {
+		const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+
+		return stored !== null ? stored === "true" : true;
+	});
+
+	const handleSidebarChange = (open: boolean) => {
+		setSidebarOpen(open);
+
+		localStorage.setItem(SIDEBAR_STORAGE_KEY, String(open));
+	};
+
 	const matchesWithCrumbs = matches.filter((match) =>
 		isMatch(match, "loaderData.crumb"),
 	);
@@ -74,7 +89,7 @@ function RouteComponent() {
 
 	return (
 		<OrganizationProvider>
-			<SidebarProvider>
+			<SidebarProvider open={sidebarOpen} onOpenChange={handleSidebarChange}>
 				<AppSidebar />
 				<SidebarInset>
 					<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -100,8 +115,10 @@ function RouteComponent() {
 							</Breadcrumb>
 						</div>
 					</header>
-					<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-						<Outlet />
+					<div className="flex flex-1 flex-col gap-4 px-4 py-10">
+						<div className="mx-auto h-24 w-full max-w-3xl rounded-xl">
+							<Outlet />
+						</div>
 					</div>
 				</SidebarInset>
 			</SidebarProvider>

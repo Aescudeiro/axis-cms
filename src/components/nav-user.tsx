@@ -8,6 +8,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import {
@@ -71,6 +72,8 @@ export function NavUser() {
 								</div>
 							</div>
 						</DropdownMenuLabel>
+
+						<DropdownMenuSeparator />
 
 						<DropdownMenuItem asChild>
 							<Link to="/logout" reloadDocument>
