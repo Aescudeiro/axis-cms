@@ -1,12 +1,13 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-// WorkOS role slugs
 const roleValidator = v.union(v.literal("admin"), v.literal("member"));
+
+const siteStatusValidator = v.union(v.literal("draft"), v.literal("published"));
 
 export default defineSchema({
 	users: defineTable({
-		authId: v.string(), // WorkOS user ID
+		authId: v.string(),
 		email: v.string(),
 		name: v.optional(v.string()),
 		createdAt: v.number(),
@@ -14,7 +15,7 @@ export default defineSchema({
 	}).index("authId", ["authId"]),
 
 	organizations: defineTable({
-		workosId: v.string(), // WorkOS organization ID
+		workosId: v.string(),
 		name: v.string(),
 		createdAt: v.number(),
 		updatedAt: v.number(),
@@ -30,4 +31,18 @@ export default defineSchema({
 		.index("userId", ["userId"])
 		.index("organizationId", ["organizationId"])
 		.index("userOrg", ["userId", "organizationId"]),
+
+	sites: defineTable({
+		organizationId: v.id("organizations"),
+		createdBy: v.id("users"),
+		name: v.string(),
+		slug: v.string(),
+		description: v.optional(v.string()),
+		status: siteStatusValidator,
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	})
+		.index("organizationId", ["organizationId"])
+		.index("orgSlug", ["organizationId", "slug"])
+		.index("createdBy", ["createdBy"]),
 });

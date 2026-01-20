@@ -1,23 +1,9 @@
-import {
-	createFileRoute,
-	isMatch,
-	Link,
-	Outlet,
-	useMatches,
-	useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { getSignInUrl } from "@workos/authkit-tanstack-react-start";
 import { useConvexAuth } from "convex/react";
-import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { OrganizationProvider } from "@/components/organization-provider";
-import {
-	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
 	SidebarInset,
@@ -42,35 +28,10 @@ export const Route = createFileRoute("/app")({
 	component: RouteComponent,
 });
 
-const SIDEBAR_STORAGE_KEY = "sidebar_state";
-
 function RouteComponent() {
 	const { url } = Route.useLoaderData();
 	const navigate = useNavigate();
 	const { isLoading, isAuthenticated } = useConvexAuth();
-	const matches = useMatches();
-	const [sidebarOpen, setSidebarOpen] = useState(() => {
-		const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
-
-		return stored !== null ? stored === "true" : true;
-	});
-
-	const handleSidebarChange = (open: boolean) => {
-		setSidebarOpen(open);
-
-		localStorage.setItem(SIDEBAR_STORAGE_KEY, String(open));
-	};
-
-	const matchesWithCrumbs = matches.filter((match) =>
-		isMatch(match, "loaderData.crumb"),
-	);
-
-	const items = matchesWithCrumbs.map(({ pathname, loaderData }) => {
-		return {
-			href: pathname,
-			label: loaderData?.crumb,
-		};
-	});
 
 	if (isLoading) {
 		return (
@@ -89,7 +50,7 @@ function RouteComponent() {
 
 	return (
 		<OrganizationProvider>
-			<SidebarProvider open={sidebarOpen} onOpenChange={handleSidebarChange}>
+			<SidebarProvider>
 				<AppSidebar />
 				<SidebarInset>
 					<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -99,20 +60,7 @@ function RouteComponent() {
 								orientation="vertical"
 								className="mr-2 data-[orientation=vertical]:h-4"
 							/>
-							<Breadcrumb>
-								<BreadcrumbList>
-									{items.map((item, index) => (
-										<BreadcrumbItem key={item.href} className="hidden md:block">
-											<BreadcrumbLink asChild>
-												<Link to={item.href} disabled={index === 0}>
-													{item.label}
-												</Link>
-											</BreadcrumbLink>
-											{index < items.length - 1 && <BreadcrumbSeparator />}
-										</BreadcrumbItem>
-									))}
-								</BreadcrumbList>
-							</Breadcrumb>
+							<Breadcrumbs />
 						</div>
 					</header>
 					<div className="flex flex-1 flex-col gap-4 px-4 py-10">

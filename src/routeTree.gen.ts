@@ -14,7 +14,11 @@ import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AppSitesRouteRouteImport } from './routes/app/sites/route'
+import { Route as AppSitesIndexRouteImport } from './routes/app/sites/index'
 import { Route as AppOrganizationsIndexRouteImport } from './routes/app/organizations/index'
+import { Route as AppSitesSlugRouteRouteImport } from './routes/app/sites/$slug/route'
+import { Route as AppSitesSlugIndexRouteImport } from './routes/app/sites/$slug/index'
 
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
@@ -41,19 +45,43 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSitesRouteRoute = AppSitesRouteRouteImport.update({
+  id: '/sites',
+  path: '/sites',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSitesIndexRoute = AppSitesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSitesRouteRoute,
+} as any)
 const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
   id: '/organizations/',
   path: '/organizations/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSitesSlugRouteRoute = AppSitesSlugRouteRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AppSitesRouteRoute,
+} as any)
+const AppSitesSlugIndexRoute = AppSitesSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSitesSlugRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/app/sites': typeof AppSitesRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/app/': typeof AppIndexRoute
+  '/app/sites/$slug': typeof AppSitesSlugRouteRouteWithChildren
   '/app/organizations': typeof AppOrganizationsIndexRoute
+  '/app/sites/': typeof AppSitesIndexRoute
+  '/app/sites/$slug/': typeof AppSitesSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,15 +89,21 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/app': typeof AppIndexRoute
   '/app/organizations': typeof AppOrganizationsIndexRoute
+  '/app/sites': typeof AppSitesIndexRoute
+  '/app/sites/$slug': typeof AppSitesSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/app/sites': typeof AppSitesRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/app/': typeof AppIndexRoute
+  '/app/sites/$slug': typeof AppSitesSlugRouteRouteWithChildren
   '/app/organizations/': typeof AppOrganizationsIndexRoute
+  '/app/sites/': typeof AppSitesIndexRoute
+  '/app/sites/$slug/': typeof AppSitesSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -77,19 +111,34 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/logout'
+    | '/app/sites'
     | '/auth/callback'
     | '/app/'
+    | '/app/sites/$slug'
     | '/app/organizations'
+    | '/app/sites/'
+    | '/app/sites/$slug/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/logout' | '/auth/callback' | '/app' | '/app/organizations'
+  to:
+    | '/'
+    | '/logout'
+    | '/auth/callback'
+    | '/app'
+    | '/app/organizations'
+    | '/app/sites'
+    | '/app/sites/$slug'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/logout'
+    | '/app/sites'
     | '/auth/callback'
     | '/app/'
+    | '/app/sites/$slug'
     | '/app/organizations/'
+    | '/app/sites/'
+    | '/app/sites/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,6 +185,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/sites': {
+      id: '/app/sites'
+      path: '/sites'
+      fullPath: '/app/sites'
+      preLoaderRoute: typeof AppSitesRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/sites/': {
+      id: '/app/sites/'
+      path: '/'
+      fullPath: '/app/sites/'
+      preLoaderRoute: typeof AppSitesIndexRouteImport
+      parentRoute: typeof AppSitesRouteRoute
+    }
     '/app/organizations/': {
       id: '/app/organizations/'
       path: '/organizations'
@@ -143,15 +206,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrganizationsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/sites/$slug': {
+      id: '/app/sites/$slug'
+      path: '/$slug'
+      fullPath: '/app/sites/$slug'
+      preLoaderRoute: typeof AppSitesSlugRouteRouteImport
+      parentRoute: typeof AppSitesRouteRoute
+    }
+    '/app/sites/$slug/': {
+      id: '/app/sites/$slug/'
+      path: '/'
+      fullPath: '/app/sites/$slug/'
+      preLoaderRoute: typeof AppSitesSlugIndexRouteImport
+      parentRoute: typeof AppSitesSlugRouteRoute
+    }
   }
 }
 
+interface AppSitesSlugRouteRouteChildren {
+  AppSitesSlugIndexRoute: typeof AppSitesSlugIndexRoute
+}
+
+const AppSitesSlugRouteRouteChildren: AppSitesSlugRouteRouteChildren = {
+  AppSitesSlugIndexRoute: AppSitesSlugIndexRoute,
+}
+
+const AppSitesSlugRouteRouteWithChildren =
+  AppSitesSlugRouteRoute._addFileChildren(AppSitesSlugRouteRouteChildren)
+
+interface AppSitesRouteRouteChildren {
+  AppSitesSlugRouteRoute: typeof AppSitesSlugRouteRouteWithChildren
+  AppSitesIndexRoute: typeof AppSitesIndexRoute
+}
+
+const AppSitesRouteRouteChildren: AppSitesRouteRouteChildren = {
+  AppSitesSlugRouteRoute: AppSitesSlugRouteRouteWithChildren,
+  AppSitesIndexRoute: AppSitesIndexRoute,
+}
+
+const AppSitesRouteRouteWithChildren = AppSitesRouteRoute._addFileChildren(
+  AppSitesRouteRouteChildren,
+)
+
 interface AppRouteRouteChildren {
+  AppSitesRouteRoute: typeof AppSitesRouteRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppSitesRouteRoute: AppSitesRouteRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
 }
